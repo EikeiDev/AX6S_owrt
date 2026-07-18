@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aetheris Cloud | Инфраструктура нового поколения</title>
+    <meta name="description" content="Облачные вычисления и бессерверная инфраструктура нового поколения.">
+    <meta name="robots" content="noindex, nofollow">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-glow: rgba(99, 102, 241, 0.5);
+            --bg-color: #0f172a;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Canvas Background */
+        #particle-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            pointer-events: auto;
+        }
+
+        /* Main Content UI */
+        .ui-layer {
+            position: relative;
+            z-index: 2;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            text-align: center;
+            pointer-events: none;
+        }
+
+        .content-box {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            padding: 3rem 4rem;
+            max-width: 600px;
+            pointer-events: auto;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            transform: translateY(0);
+            transition: transform 0.3s ease;
+        }
+
+        .content-box:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 25px 50px -12px var(--primary-glow);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 1.5rem;
+        }
+
+        .logo svg {
+            width: 32px;
+            height: 32px;
+            color: var(--primary);
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            background: linear-gradient(to right, #818cf8, #c084fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        p.subtitle {
+            font-size: 1.1rem;
+            color: var(--text-muted);
+            line-height: 1.6;
+            margin-bottom: 2rem;
+        }
+
+        /* Fake Form */
+        .subscribe-form {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 1.5rem;
+        }
+
+        input {
+            flex: 1;
+            padding: 12px 20px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(15, 23, 42, 0.8);
+            color: white;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        input:focus {
+            border-color: var(--primary);
+        }
+
+        button {
+            padding: 12px 24px;
+            border-radius: 8px;
+            border: none;
+            background: var(--primary);
+            color: white;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+            white-space: nowrap;
+        }
+
+        button:hover {
+            background: #4f46e5;
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        .system-status {
+            font-size: 0.85rem;
+            color: #10b981;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .pulse {
+            width: 8px;
+            height: 8px;
+            background-color: #10b981;
+            border-radius: 50%;
+            animation: pulse-animation 2s infinite;
+        }
+
+        @keyframes pulse-animation {
+            0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+        }
+
+        @media (max-width: 600px) {
+            .content-box { padding: 2rem; }
+            .subscribe-form { flex-direction: column; }
+            h1 { font-size: 2rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Interactive Background -->
+    <canvas id="particle-canvas"></canvas>
+
+    <!-- UI Overlay -->
+    <div class="ui-layer">
+        <div class="content-box">
+            <div class="logo">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+                    <polyline points="2 17 12 22 22 17"></polyline>
+                    <polyline points="2 12 12 17 22 12"></polyline>
+                </svg>
+                <h2>Aetheris</h2>
+            </div>
+            <h1>Создаем будущее</h1>
+            <p class="subtitle">Наша распределенная инфраструктура находится в процессе планового развертывания. Присоединяйтесь к списку ожидания, чтобы получить ранний доступ к архитектуре V2.</p>
+            
+            <div class="subscribe-form" id="form">
+                <input type="email" id="email" placeholder="Введите рабочий email" autocomplete="off">
+                <button type="button" onclick="submitFakeForm()" id="btn">Оставить заявку</button>
+            </div>
+            
+            <div class="system-status">
+                <div class="pulse"></div>
+                Узлы в сети — Фаза развертывания 3
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- Easter Egg for Developers / Scanners ---
+        console.log("%c[SYSTEM] Ядро Aetheris инициализировано.", "color: #6366f1; font-weight: bold; font-size: 14px;");
+        console.log("%c[INFO] Модуль обхода V2Ray/Xray... подождите, шучу. Здесь не на что смотреть! 👀", "color: #10b981; font-style: italic;");
+        console.log("Добро пожаловать в пустоту. Статус: HTTP 200 OK.");
+
+        // --- Fake Form Logic ---
+        function submitFakeForm() {
+            const btn = document.getElementById('btn');
+            const email = document.getElementById('email');
+            
+            if (!email.value.includes('@')) {
+                btn.innerText = 'Неверный Email';
+                btn.style.background = '#ef4444';
+                setTimeout(() => {
+                    btn.innerText = 'Оставить заявку';
+                    btn.style.background = 'var(--primary)';
+                }, 2000);
+                return;
+            }
+
+            btn.innerText = 'Загрузка...';
+            btn.style.opacity = '0.7';
+            btn.style.pointerEvents = 'none';
+
+            // Fake API delay
+            setTimeout(() => {
+                btn.innerText = 'Отправлено!';
+                btn.style.background = '#10b981';
+                btn.style.opacity = '1';
+                email.value = '';
+                
+                setTimeout(() => {
+                    btn.innerText = 'Оставить заявку';
+                    btn.style.background = 'var(--primary)';
+                    btn.style.pointerEvents = 'auto';
+                }, 3000);
+            }, 1200);
+        }
+
+        // --- Particle Network Animation ---
+        const canvas = document.getElementById('particle-canvas');
+        const ctx = canvas.getContext('2d');
+        
+        let width, height;
+        let particles = [];
+        
+        let mouse = { x: null, y: null, radius: 150 };
+
+        window.addEventListener('mousemove', (e) => {
+            mouse.x = e.x;
+            mouse.y = e.y;
+        });
+        window.addEventListener('mouseout', () => {
+            mouse.x = null;
+            mouse.y = null;
+        });
+
+        function resize() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resize);
+        resize();
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * width;
+                this.y = Math.random() * height;
+                this.vx = (Math.random() - 0.5) * 1.5;
+                this.vy = (Math.random() - 0.5) * 1.5;
+                this.baseRadius = Math.random() * 2 + 1;
+                this.radius = this.baseRadius;
+            }
+            update() {
+                if (this.x < 0 || this.x > width) this.vx = -this.vx;
+                if (this.y < 0 || this.y > height) this.vy = -this.vy;
+                
+                this.x += this.vx;
+                this.y += this.vy;
+
+                // Mouse interaction
+                if (mouse.x != null) {
+                    let dx = mouse.x - this.x;
+                    let dy = mouse.y - this.y;
+                    let distance = Math.sqrt(dx * dx + dy * dy);
+                    if (distance < mouse.radius) {
+                        const forceDirectionX = dx / distance;
+                        const forceDirectionY = dy / distance;
+                        const force = (mouse.radius - distance) / mouse.radius;
+                        this.x -= forceDirectionX * force * 2;
+                        this.y -= forceDirectionY * force * 2;
+                    }
+                }
+            }
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fillStyle = 'rgba(99, 102, 241, 0.5)';
+                ctx.fill();
+            }
+        }
+
+        function initParticles() {
+            particles = [];
+            let numberOfParticles = (width * height) / 15000;
+            for (let i = 0; i < numberOfParticles; i++) {
+                particles.push(new Particle());
+            }
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, width, height);
+            
+            for (let i = 0; i < particles.length; i++) {
+                particles[i].update();
+                particles[i].draw();
+                
+                for (let j = i; j < particles.length; j++) {
+                    let dx = particles[i].x - particles[j].x;
+                    let dy = particles[i].y - particles[j].y;
+                    let distance = Math.sqrt(dx * dx + dy * dy);
+                    
+                    if (distance < 120) {
+                        ctx.beginPath();
+                        ctx.strokeStyle = `rgba(99, 102, 241, ${1 - distance/120})`;
+                        ctx.lineWidth = 1;
+                        ctx.moveTo(particles[i].x, particles[i].y);
+                        ctx.lineTo(particles[j].x, particles[j].y);
+                        ctx.stroke();
+                    }
+                }
+            }
+            requestAnimationFrame(animate);
+        }
+
+        initParticles();
+        animate();
+    </script>
+</body>
+</html>
